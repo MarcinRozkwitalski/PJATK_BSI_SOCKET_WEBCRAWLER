@@ -8,17 +8,19 @@ Created on Sun Jan 17 14:13:59 2021
 import socket
 
 
-HEADERSIZE = 10
+s = socket.socket()
+print('Socket Created')
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((socket.gethostname(), 1234))
-s.listen(5)
+s.bind(('localhost', 9999))
+
+s.listen(3)
+print('waiting for connections')
 
 while True:
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
+    c, addr = s.accept()
+    message = c.recv(1024).decode()
+    print("Connected with ", addr, message)
     
-    msg = "Weclome to the server!"
-    msg = f'{len(msg):<{HEADERSIZE}}' + msg
+    c.send(bytes('Welcome to Telusko','utf-8'))
     
-    clientsocket.send(bytes("Welcome to the server!", "utf-8"))
+    c.close()
