@@ -21,6 +21,6 @@ while True:
     message = c.recv(1024).decode()
     print("Connected with ", addr, message)
     
-    c.send(bytes('Welcome to Telusko','utf-8'))
+    c.send(bytes('Server has successfully received your message','utf-8'))
     
     c.close()

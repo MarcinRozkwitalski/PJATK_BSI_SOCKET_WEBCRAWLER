@@ -7,30 +7,27 @@ Created on Sun Jan 17 13:56:49 2021
 
 import socket
 
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
-import binascii
+alphabet = "abcdefghijklmnopqrstuvwxyz "
+letter_to_index = dict(zip(alphabet, range(len(alphabet))))
+index_to_letter = dict(zip(range(len(alphabet)), alphabet))
 
-c = socket.socket()
-c.connect(('localhost', 9999))
+def encrypt(message, shift=3):
+    cipher = ""
 
-keyPair = RSA.generate(3072)
+    for letter in message:
+        number = (letter_to_index[letter] + shift) % len(letter_to_index)
+        letter = index_to_letter[number]
+        cipher += letter
 
-pubKey = keyPair.publickey()
-print(f"Public key:  (n={hex(pubKey.n)}, e={hex(pubKey.e)})")
-pubKeyPEM = pubKey.exportKey()
-print(pubKeyPEM.decode('ascii'))
+    return cipher
+        
+def main():
+    c = socket.socket()
+    c.connect(('localhost', 9999))
+    message = input("Enter message: ")
+    encrypted_message = encrypt(message, shift=3)
+    print("Encrypted message:",encrypted_message)
+    c.send(bytes(encrypted_message, 'utf-8'))
+    print(c.recv(1024).decode())
 
-print(f"Private key: (n={hex(pubKey.n)}, d={hex(keyPair.d)})")
-privKeyPEM = keyPair.exportKey()
-print(privKeyPEM.decode('ascii'))
-
-message = input("Enter your message: ")
-encryptor = PKCS1_OAEP.new(pubKey)
-encrypted = encryptor.encrypt(message)
-print("Encrypted:", binascii.hexlify(encrypted))
-
-
-c.send(bytes(encrypted, 'utf-8'))
-
-print(c.recv(1024).decode())
+main()
